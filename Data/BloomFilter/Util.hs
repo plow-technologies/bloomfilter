@@ -9,7 +9,6 @@ module Data.BloomFilter.Util
 
 import Data.Bits ((.|.))
 import qualified Data.Bits as Bits
-import GHC.Base
 import GHC.Word
 
 -- | A strict pair type.
@@ -34,34 +33,35 @@ nextPowerOfTwo n =
 -- | This is a workaround for poor optimisation in GHC 6.8.2.  It
 -- fails to notice constant-width shifts, and adds a test and branch
 -- to every shift.  This imposes about a 10% performance hit.
+-- AVG: This is no longer the case
 class FastShift a where
     shiftL :: a -> Int -> a
     shiftR :: a -> Int -> a
 
 instance FastShift Word32 where
     {-# INLINE shiftL #-}
-    shiftL (W32# x#) (I# i#) = W32# (x# `uncheckedShiftL#` i#)
+    shiftL = Bits.unsafeShiftL
 
     {-# INLINE shiftR #-}
-    shiftR (W32# x#) (I# i#) = W32# (x# `uncheckedShiftRL#` i#)
+    shiftR = Bits.unsafeShiftR
 
 instance FastShift Word64 where
     {-# INLINE shiftL #-}
-    shiftL (W64# x#) (I# i#) = W64# (x# `uncheckedShiftL64#` i#)
+    shiftL = Bits.unsafeShiftL
 
     {-# INLINE shiftR #-}
-    shiftR (W64# x#) (I# i#) = W64# (x# `uncheckedShiftRL64#` i#)
+    shiftR = Bits.unsafeShiftR
 
 instance FastShift Int where
     {-# INLINE shiftL #-}
-    shiftL (I# x#) (I# i#) = I# (x# `iShiftL#` i#)
+    shiftL = Bits.unsafeShiftL
 
     {-# INLINE shiftR #-}
-    shiftR (I# x#) (I# i#) = I# (x# `iShiftRA#` i#)
+    shiftR = Bits.unsafeShiftR
 
 instance FastShift Integer where
     {-# INLINE shiftL #-}
-    shiftL = Bits.shiftL
+    shiftL = Bits.unsafeShiftL
 
     {-# INLINE shiftR #-}
-    shiftR = Bits.shiftR
+    shiftR = Bits.unsafeShiftR
